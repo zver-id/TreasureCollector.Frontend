@@ -10,7 +10,6 @@ const clearData = {
 const CreateNewItem = ({setItems}) => {
     const [data, setData] = useState(clearData)
 
-
     const createItem = (e) => {
         e.preventDefault()
 
@@ -20,8 +19,6 @@ const CreateNewItem = ({setItems}) => {
 
         setData(clearData)
     }
-
-
 
     return <form className={styles.form}>
         <input placeholder='Name'

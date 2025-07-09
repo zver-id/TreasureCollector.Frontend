@@ -1,17 +1,17 @@
-﻿import {coins as coinsData} from "./coins.data.js";
-import CoinItem from "./coin-item/Coinitem.jsx";
+﻿import CoinItem from "./coin-item/Coinitem.jsx";
 import CreateNewItem from "./create-new-item/CreateNewItem.jsx";
 import {useEffect, useState} from "react";
+import axios from "axios";
 
 function Home() {
     const [coins , setItems] = useState([])
     useEffect(() => {
         const fetchData = async () => {
-            const response = await fetch(
+            // нужна установка axios npm install axios
+            const response = await axios.get(
                 'http://localhost:5186/coin')
-            const data =await response.json()
 
-            setItems(data)
+            setItems(response.data)
         }
         fetchData()
     }, []);
