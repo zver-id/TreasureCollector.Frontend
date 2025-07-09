@@ -86,3 +86,9 @@ typings/
 
 # DynamoDB Local files
 .dynamodb/
+
+.idea/
+
+public/
+
+src/assets/react.svg
