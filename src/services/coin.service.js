@@ -5,6 +5,7 @@ export const ItemService = {
         // нужна установка axios npm install axios
         const response = await axios.get(
             'http://localhost:5186/coin')
+        console.log(response)
 
         return response.data
     },
@@ -12,7 +13,7 @@ export const ItemService = {
     async getById(id){
         // нужна установка axios npm install axios
         const response = await axios.get(
-            `http://localhost:5186/coin/coin?id=${id}`)
+            `http://localhost:5186/Coin/${id}?itemId=${id}`)
 
         return response.data
     }

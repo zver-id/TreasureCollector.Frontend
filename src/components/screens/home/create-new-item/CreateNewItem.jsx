@@ -2,9 +2,10 @@
 import {useState} from "react";
 
 const clearData = {
-    Name:'',
-    Country:'',
-    Mint:''
+    name:'',
+    country:'',
+    currency:'',
+    year:''
 }
 
 const CreateNewItem = ({setItems}) => {
@@ -13,7 +14,7 @@ const CreateNewItem = ({setItems}) => {
     const createItem = (e) => {
         e.preventDefault()
 
-        setItems(prev => [{Id: prev.length+1,
+        setItems(prev => [{id: prev.length+1,
             ...data},
             ...prev])
 
@@ -24,21 +25,27 @@ const CreateNewItem = ({setItems}) => {
         <input placeholder='Name'
                onChange={e=>setData(
                    prev => ({
-                       ...prev, Name: e.target.value
+                       ...prev, name: e.target.value
                    }))}
-               value={data.Name}/>
+               value={data.name}/>
         <input placeholder='Country'
                onChange={e=>setData(
                    prev => ({
-                       ...prev, Country: e.target.value
+                       ...prev, country: e.target.value
                    }))}
                value={data.Country}/>
-        <input placeholder='Mint'
+        <input placeholder='Currency'
                onChange={e=>setData(
                    prev => ({
-                       ...prev, Mint: e.target.value
+                       ...prev, currency: e.target.value
                    }))}
-               value={data.Mint}/>
+               value={data.currency}/>
+        <input placeholder='Year'
+               onChange={e=>setData(
+                   prev => ({
+                       ...prev, year: e.target.value
+                   }))}
+               value={data.year}/>
         <button className='btn' onClick={e => createItem(e)}>Create</button>
     </form>
 }

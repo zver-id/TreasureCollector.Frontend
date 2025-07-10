@@ -9,9 +9,10 @@ function CoinItem({ coin }){
            }}
       ></div>
       <div className={styles.info}>
-          <h2>{coin.Name}</h2>
-          <p>Country {coin.Country}</p>
-          <p>Mint {coin.Mint}</p>
+          <h2>{coin.name}</h2>
+          <p>Country {coin.country}</p>
+          <p>Currency {coin.currency}</p>
+          <p>Year {coin.year}</p>
           <button>View</button>
       </div>
   </div>

@@ -92,3 +92,5 @@ typings/
 public/
 
 src/assets/react.svg
+
+node/
