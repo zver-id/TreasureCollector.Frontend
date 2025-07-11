@@ -19,7 +19,7 @@ const ItemDetail = () => {
     }, [id]);
 
   return <div>
-      <Link to ='/'>Back</Link>
+      <Link className={'btn'} to ='/'>Back</Link>
       <CoinItem coin={item} />
   </div>
 }

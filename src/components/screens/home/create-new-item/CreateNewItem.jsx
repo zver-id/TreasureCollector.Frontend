@@ -1,5 +1,6 @@
 ﻿import styles from './CreateNewItem.module.css'
 import {useState} from "react";
+import {ItemService} from "../../../../services/coin.service.js";
 
 const clearData = {
     name:'',
@@ -11,12 +12,21 @@ const clearData = {
 const CreateNewItem = ({setItems}) => {
     const [data, setData] = useState(clearData)
 
-    const createItem = (e) => {
+    const createItem = async (e) => {
         e.preventDefault()
 
         setItems(prev => [{id: prev.length+1,
             ...data},
             ...prev])
+
+        const pushData = {
+            name: data.name,
+            currency: data.currency,
+            year: data.year,
+            country: data.country
+        }
+
+        await ItemService.pushNew(pushData)
 
         setData(clearData)
     }
