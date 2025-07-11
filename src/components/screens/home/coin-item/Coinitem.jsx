@@ -1,4 +1,5 @@
 ﻿import styles from '../Home.module.css'
+import {Link} from "react-router-dom";
 
 function CoinItem({ coin }){
   return (
@@ -13,7 +14,9 @@ function CoinItem({ coin }){
           <p>Country {coin.country}</p>
           <p>Currency {coin.currency}</p>
           <p>Year {coin.year}</p>
-          <button>View</button>
+          <Link className='btn' to={`/Coin/${coin.id}?itemId=${coin.id}`}>
+              View
+          </Link>
       </div>
   </div>
   )

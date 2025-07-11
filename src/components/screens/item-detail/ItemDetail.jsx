@@ -1,6 +1,6 @@
 ﻿import {useEffect, useState} from "react";
 import {ItemService} from "../../../services/coin.service.js";
-import {useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import CoinItem from "../home/coin-item/Coinitem.jsx";
 
 const ItemDetail = () => {
@@ -19,6 +19,7 @@ const ItemDetail = () => {
     }, [id]);
 
   return <div>
+      <Link to ='/'>Back</Link>
       <CoinItem coin={item} />
   </div>
 }
