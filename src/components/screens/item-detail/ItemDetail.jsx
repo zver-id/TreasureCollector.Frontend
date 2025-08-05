@@ -2,6 +2,7 @@
 import {ItemService} from "../../../services/coin.service.js";
 import {Link, useParams} from "react-router-dom";
 import CoinItem from "../home/coin-item/Coinitem.jsx";
+import DetailCoinItem from "../home/coin-item/DetailCoinitem.jsx";
 
 const ItemDetail = () => {
 
@@ -20,7 +21,7 @@ const ItemDetail = () => {
 
   return <div>
       <Link className={'btn'} to ='/'>Back</Link>
-      <CoinItem coin={item} />
+      <DetailCoinItem coin={item} />
   </div>
 }
 

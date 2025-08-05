@@ -12,9 +12,8 @@ function CoinItem({ coin }){
       <div className={styles.info}>
           <h2>{coin.name}</h2>
           <p>Country {coin.country}</p>
-          <p>Currency {coin.currency}</p>
           <p>Year {coin.year}</p>
-          <Link className='btn' to={`/Coin/${coin.id}?itemId=${coin.id}`}>
+          <Link className='btn' to={`/Coin/${coin.id}`}>
               View
           </Link>
       </div>

@@ -1,35 +1,38 @@
-﻿import CoinItem from "./coin-item/Coinitem.jsx";
+﻿import CoinItem from "./coin-item/CoinItem.jsx";
 import CreateNewItem from "./create-new-item/CreateNewItem.jsx";
-import {useEffect, useState} from "react";
-import {ItemService} from "../../../services/coin.service.js";
+import { useEffect, useState } from "react";
+import { ItemService } from "../../../services/coin.service.js";
+import styles from './Home.module.css';
 
 function Home() {
-    const [coins , setItems] = useState([])
+    const [coins, setItems] = useState([]);
+
     useEffect(() => {
         const fetchData = async () => {
-            // нужна установка axios npm install axios
-            const data = await ItemService.getAll()
-
-            setItems(data)
-        }
-        fetchData()
+            const data = await ItemService.getAll();
+            setItems(data);
+        };
+        fetchData();
     }, []);
 
     return (
-        <div>
-            <h1>Treasure Collector</h1>
-            <CreateNewItem setItems={setItems}/>
-            <div>
-                {coins.length ? (
-                    coins.map(coin => (
-                        <CoinItem key={coin.Id} coin ={coin}/>
-                )))
-                : <p>There are no items</p>}
+        <div className={styles.app}>
+            <header className={styles.appHeader}>
+                <h1 className={styles.logo}>Treasure Collector</h1>
+            </header>
+
+            <div className={styles.mainContent}>
+                <CreateNewItem setItems={setItems} />
+                <div className={styles.itemsContainer}>
+                    {coins.length ? (
+                        coins.map(coin => (
+                            <CoinItem key={coin.Id} coin={coin} />
+                        ))
+                    ) : <p>There are no items</p>}
+                </div>
             </div>
-
         </div>
-
-    )
+    );
 }
 
-export default Home
+export default Home;

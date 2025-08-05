@@ -21,7 +21,6 @@ const CreateNewItem = ({setItems}) => {
 
         const pushData = {
             name: data.name,
-            currency: data.currency,
             year: data.year,
             country: data.country
         }
@@ -44,12 +43,6 @@ const CreateNewItem = ({setItems}) => {
                        ...prev, country: e.target.value
                    }))}
                value={data.Country}/>
-        <input placeholder='Currency'
-               onChange={e=>setData(
-                   prev => ({
-                       ...prev, currency: e.target.value
-                   }))}
-               value={data.currency}/>
         <input placeholder='Year'
                onChange={e=>setData(
                    prev => ({

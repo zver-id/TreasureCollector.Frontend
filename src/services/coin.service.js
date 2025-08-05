@@ -1,25 +1,25 @@
 ﻿import axios from "axios";
+import config from "../../config.js";
 
 export const ItemService = {
     async getAll(){
+
         // нужна установка axios npm install axios
         const response = await axios.get(
-            'http://localhost:5186/coin')
-        console.log(response)
-
+            `${config.apiUrl}/coin`)
         return response.data
     },
 
     async getById(id){
         const response = await axios.get(
-            `http://localhost:5186/Coin/${id}?itemId=${id}`)
+            `${config.apiUrl}/Coin/${id}`)
 
         return response.data
     },
 
     async pushNew(data){
         const response = await axios.post(
-            `http://localhost:5186/Coin/`, data)
+            `${config.apiUrl}/Coin/`, data)
             .then(response => {
                 console.log('Response:', response.data);
             })

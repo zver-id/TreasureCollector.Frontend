@@ -1,6 +1,16 @@
 ﻿body{
-    background-color: black;
-    padding: 0 30px;
+    margin: 0;
+    padding: 0 !important;
+    min-width: 320px;
+    min-height: 100vh;
+    display: block;
+}
+
+#root {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
 }
 
 .btn{
