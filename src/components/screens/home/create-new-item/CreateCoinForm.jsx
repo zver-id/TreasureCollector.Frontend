@@ -1,18 +1,20 @@
 ﻿import { useState, useEffect } from 'react';
 import './CreateCoinForm.css';
+import {ItemService} from "../../../../services/coin.service.js";
 
 const CreateCoinForm = ({ detailCoin }) => {
-    const getSafeValue = (value, defaultValue) => {
-        return value !== undefined ? value : defaultValue;
+    const getSafeValue = (value, defaultValue = "") => {
+        return value !== undefined && value !== null ? value : defaultValue;
     };
 
+    // Значения по умолчанию с гарантией строковых значений
     const defaultValues = {
-        itemType: getSafeValue(detailCoin?.itemType, "Монета"),
-        name: getSafeValue(detailCoin?.name, "Рубль"),
-        nominal: getSafeValue(detailCoin?.nominal, "1"),
-        currency: getSafeValue(detailCoin?.currency, "RUB"),
-        country: getSafeValue(detailCoin?.country, "Россия"),
-        year: getSafeValue(detailCoin?.year, new Date().getFullYear())
+        itemType: getSafeValue(detailCoin?.itemType, "coin"),
+        name: getSafeValue(detailCoin?.name, ""),
+        nominal: getSafeValue(detailCoin?.nominal, ""),
+        currency: getSafeValue(detailCoin?.currency, ""),
+        country: getSafeValue(detailCoin?.country, ""),
+        year: getSafeValue(detailCoin?.year, "")
     };
 
     const [formData, setFormData] = useState(defaultValues);
@@ -20,15 +22,17 @@ const CreateCoinForm = ({ detailCoin }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        if (detailCoin) {
+        if (detailCoin?.id) {
             setFormData({
-                itemType: getSafeValue(detailCoin.itemType, ""),
-                name: getSafeValue(detailCoin.name, ""),
-                nominal: getSafeValue(detailCoin.nominal, ""),
-                currency: getSafeValue(detailCoin.currency, ""),
-                country: getSafeValue(detailCoin.country, ""),
+                itemType: getSafeValue(detailCoin.itemType),
+                name: getSafeValue(detailCoin.name),
+                nominal: getSafeValue(detailCoin.nominal),
+                currency: getSafeValue(detailCoin.currency),
+                country: getSafeValue(detailCoin.country),
                 year: getSafeValue(detailCoin.year, new Date().getFullYear())
             });
+        } else {
+            setFormData(defaultValues);
         }
     }, [detailCoin]);
 
@@ -36,7 +40,7 @@ const CreateCoinForm = ({ detailCoin }) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'year' ? Number(value) || '' : value
+            [name]: name === 'year' ? (value === "" ? "" : Number(value)) : value
         }));
     };
 
@@ -46,37 +50,36 @@ const CreateCoinForm = ({ detailCoin }) => {
         setSubmitStatus(null);
 
         try {
-            if (!formData.name) {
+            if (!formData.name.trim()) {
                 throw new Error('Название обязательно для заполнения');
             }
 
-            const response = await fetch('http://localhost:5000/coin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    itemType: formData.itemType,
-                    name: formData.name,
-                    nominal: formData.nominal,
-                    currency: formData.currency,
-                    country: formData.country,
-                    year: Number(formData.year) || new Date().getFullYear()
-                }),
-            });
+            const dataToSend = {
+                ...(detailCoin?.id && { id: detailCoin.id }),
+                itemType: formData.itemType,
+                name: formData.name,
+                nominal: formData.nominal,
+                currency: formData.currency,
+                country: formData.country,
+                year: formData.year === "" ? new Date().getFullYear() : Number(formData.year)
+            };
 
-            if (!response.ok) {
+            const response = detailCoin?.id
+                ? await ItemService.updateItem(JSON.stringify(dataToSend))
+                : await ItemService.pushNew(JSON.stringify(dataToSend));
+
+            if (!response || response.status >= 400) {
                 throw new Error(`Ошибка сервера: ${response.status}`);
             }
 
-            const result = await response.json();
+            const result = await response.data;
             setSubmitStatus({
                 success: true,
-                message: detailCoin ? 'Монета успешно обновлена!' : 'Монета успешно создана!',
+                message: detailCoin?.id ? 'Монета успешно обновлена!' : 'Монета успешно создана!',
                 data: result
             });
 
-            if (!detailCoin) {
+            if (!detailCoin?.id) {
                 setFormData(defaultValues);
             }
         } catch (err) {
@@ -91,7 +94,7 @@ const CreateCoinForm = ({ detailCoin }) => {
 
     return (
         <div className="create-coin-form">
-            <h2>{detailCoin ? 'Редактировать монету' : 'Создать новую монету'}</h2>
+            <h2>{detailCoin?.id ? `${formData.name}` : 'Создать новую монету'}</h2>
 
             {submitStatus && (
                 <div className={`alert ${submitStatus.success ? 'success' : 'error'}`}>
@@ -111,9 +114,9 @@ const CreateCoinForm = ({ detailCoin }) => {
                         type="text"
                         id="itemType"
                         name="itemType"
-                        value={formData.itemType}
+                        value={formData.itemType || ""}
                         onChange={handleChange}
-                        placeholder={defaultValues.itemType?.toString() || ""}
+                        placeholder="Монета"
                     />
                 </div>
 
@@ -123,9 +126,9 @@ const CreateCoinForm = ({ detailCoin }) => {
                         type="text"
                         id="name"
                         name="name"
-                        value={formData.name}
+                        value={formData.name || ""}
                         onChange={handleChange}
-                        placeholder={defaultValues.name?.toString() || ""}
+                        placeholder="Введите название"
                         required
                     />
                 </div>
@@ -136,9 +139,9 @@ const CreateCoinForm = ({ detailCoin }) => {
                         type="text"
                         id="nominal"
                         name="nominal"
-                        value={formData.nominal}
+                        value={formData.nominal || ""}
                         onChange={handleChange}
-                        placeholder={defaultValues.nominal?.toString() || ""}
+                        placeholder="Введите номинал"
                     />
                 </div>
 
@@ -148,9 +151,9 @@ const CreateCoinForm = ({ detailCoin }) => {
                         type="text"
                         id="currency"
                         name="currency"
-                        value={formData.currency}
+                        value={formData.currency || ""}
                         onChange={handleChange}
-                        placeholder={defaultValues.currency?.toString() || ""}
+                        placeholder="RUB"
                     />
                 </div>
 
@@ -160,9 +163,9 @@ const CreateCoinForm = ({ detailCoin }) => {
                         type="text"
                         id="country"
                         name="country"
-                        value={formData.country}
+                        value={formData.country || ""}
                         onChange={handleChange}
-                        placeholder={defaultValues.country?.toString() || ""}
+                        placeholder="Россия"
                     />
                 </div>
 
@@ -172,9 +175,9 @@ const CreateCoinForm = ({ detailCoin }) => {
                         type="number"
                         id="year"
                         name="year"
-                        value={formData.year}
+                        value={formData.year === undefined ? "" : formData.year}
                         onChange={handleChange}
-                        placeholder={defaultValues.year?.toString() || new Date().getFullYear().toString()}
+                        placeholder={new Date().getFullYear().toString()}
                         min="0"
                         max={new Date().getFullYear()}
                     />
@@ -185,7 +188,7 @@ const CreateCoinForm = ({ detailCoin }) => {
                     className="submit-btn"
                     disabled={isSubmitting}
                 >
-                    {isSubmitting ? 'Сохранение...' : detailCoin ? 'Обновить' : 'Создать'}
+                    {isSubmitting ? 'Сохранение...' : detailCoin?.id ? 'Обновить' : 'Создать'}
                 </button>
             </form>
         </div>

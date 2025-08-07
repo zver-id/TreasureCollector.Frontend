@@ -19,7 +19,11 @@ export const ItemService = {
 
     async pushNew(data){
         const response = await axios.post(
-            `${config.apiUrl}/Coin/`, data)
+            `${config.apiUrl}/Coin/`, data, {
+                headers:{
+                    'Content-Type': 'application/json'
+                }
+            })
             .then(response => {
                 console.log('Response:', response.data);
             })
@@ -27,6 +31,23 @@ export const ItemService = {
                 console.error('Error:', error)
             });
 
-        return response.data
+        return response
+    },
+
+    async updateItem(data) {
+        const response = await axios.put(`${config.apiUrl}/Coin/`, data,
+            {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log('Response:', response.data);
+        return response
+    },
+
+    async getStats() {
+        const response = await axios.get(`${config.apiUrl}/CoinStatistics?field=country`);
+        console.log('Response:', response.data);
+        return response
     }
 }

@@ -3,6 +3,7 @@ import CreateNewItem from "./create-new-item/CreateNewItem.jsx";
 import { useEffect, useState } from "react";
 import { ItemService } from "../../../services/coin.service.js";
 import styles from './Home.module.css';
+import {Link} from "react-router-dom";
 
 function Home() {
     const [coins, setItems] = useState([]);
@@ -22,7 +23,14 @@ function Home() {
             </header>
 
             <div className={styles.mainContent}>
-                <CreateNewItem setItems={setItems} />
+                <div className={styles.buttonsContainer}>
+                    <Link className={styles.button} to={`/Coin/new`}>
+                        View statistics
+                    </Link>
+                    <Link className={styles.button} to={`/Coin/stats`}>
+                        Create new
+                    </Link>
+                </div>
                 <div className={styles.itemsContainer}>
                     {coins.length ? (
                         coins.map(coin => (

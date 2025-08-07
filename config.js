@@ -1,6 +1,6 @@
 ﻿const config = {
     dev: {
-        apiUrl: "http://localhost:5000",
+        apiUrl: "http://localhost:5186",
     },
     prod: {
         apiUrl: "http://localhost:5186",

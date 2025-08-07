@@ -50,12 +50,6 @@
     resize: vertical;
 }
 
-/* Адаптация для мобильных */
-@media (max-width: 768px) {
-    .create-coin-form {
-
-
-        /* Стили для групп формы */
 .form-group {
     margin-bottom: 16px;
 }
@@ -166,7 +160,5 @@
 
     .form-group input {
         padding: 8px 12px;
-    }
-}
     }
 }

@@ -1,13 +1,15 @@
 ﻿import {BrowserRouter, Route, Routes} from "react-router-dom";
 import Home from "../screens/home/Home.jsx";
 import ItemDetail from "../screens/item-detail/ItemDetail.jsx";
+import StatisticsChart from "../screens/home/statistics-chart/StatisticsChart.jsx";
 
 const Router = () => {
     return <BrowserRouter>
         <Routes>
             <Route element={<Home />} path={'/'}/>
             <Route element={<ItemDetail />} path='/coin/:id' />
-
+            <Route element={<ItemDetail />} path='/coin/new' />
+            <Route element={<StatisticsChart />} path='/coin/stats' />
             <Route path={'*'} element={<div>Not found </div>}/>
         </Routes>
     </BrowserRouter>
