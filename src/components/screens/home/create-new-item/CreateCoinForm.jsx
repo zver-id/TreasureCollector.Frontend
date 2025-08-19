@@ -1,39 +1,48 @@
 ﻿import { useState, useEffect } from 'react';
+import { FormDataService } from '../../../../services/form.data.service.js';
+import { ValidationService } from '../../../../services/validation.service.js';
+import { FormInitializer } from '../../../../services/form-initializer.js';
+import { ImageUpload } from '../../../../services/image-upload.jsx';
+import { ItemService } from '../../../../services/coin.service.js';
+import { ImageService } from '../../../../services/image.service.js';
 import './CreateCoinForm.css';
-import {ItemService} from "../../../../services/coin.service.js";
+
 
 const CreateCoinForm = ({ detailCoin }) => {
-    const getSafeValue = (value, defaultValue = "") => {
-        return value !== undefined && value !== null ? value : defaultValue;
-    };
-
-    // Значения по умолчанию с гарантией строковых значений
-    const defaultValues = {
-        itemType: getSafeValue(detailCoin?.itemType, "coin"),
-        name: getSafeValue(detailCoin?.name, ""),
-        nominal: getSafeValue(detailCoin?.nominal, ""),
-        currency: getSafeValue(detailCoin?.currency, ""),
-        country: getSafeValue(detailCoin?.country, ""),
-        year: getSafeValue(detailCoin?.year, "")
-    };
-
-    const [formData, setFormData] = useState(defaultValues);
+    const [formData, setFormData] = useState(FormInitializer.getDefaultValues(detailCoin));
     const [submitStatus, setSubmitStatus] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [imagePreviews, setImagePreviews] = useState({
+        aversImage: null,
+        reversImage: null,
+        edgeImage: null
+    });
+    const [imageFiles, setImageFiles] = useState({
+        aversImage: null,
+        reversImage: null,
+        edgeImage: null
+    });
 
     useEffect(() => {
-        if (detailCoin?.id) {
-            setFormData({
-                itemType: getSafeValue(detailCoin.itemType),
-                name: getSafeValue(detailCoin.name),
-                nominal: getSafeValue(detailCoin.nominal),
-                currency: getSafeValue(detailCoin.currency),
-                country: getSafeValue(detailCoin.country),
-                year: getSafeValue(detailCoin.year, new Date().getFullYear())
-            });
-        } else {
-            setFormData(defaultValues);
-        }
+        const loadImages = async () => {
+            if (detailCoin?.id) {
+                setFormData(FormInitializer.getDefaultValues(detailCoin));
+
+                const [aversPreview, reversPreview, edgePreview] = await Promise.all([
+                    ImageService.load(detailCoin.aversImagePath, 'aversImage'),
+                    ImageService.load(detailCoin.reversImagePath, 'reversImage'),
+                    ImageService.load(detailCoin.edgeImagePath, 'edgeImage')
+                ]);
+
+                setImagePreviews({
+                    aversImage: aversPreview,
+                    reversImage: reversPreview,
+                    edgeImage: edgePreview
+                });
+            }
+        };
+
+        loadImages();
     }, [detailCoin]);
 
     const handleChange = (e) => {
@@ -44,49 +53,83 @@ const CreateCoinForm = ({ detailCoin }) => {
         }));
     };
 
+    const handleImageChange = async (e, imageType) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const preview = await ImageService.getPreviewFromFile(file);
+        setImagePreviews(prev => ({ ...prev, [imageType]: preview }));
+        setImageFiles(prev => ({ ...prev, [imageType]: file }));
+    };
+
+    const removeImage = (imageType) => {
+        setImagePreviews(prev => ({ ...prev, [imageType]: null }));
+        setImageFiles(prev => ({ ...prev, [imageType]: null }));
+    };
+
+    const convertImagesToBase64 = async () => {
+        const images = {};
+
+        for (const [key, file] of Object.entries(imageFiles)) {
+            if (file) {
+                images[key] = await ImageService.fileToBase64(file);
+            } else if (imagePreviews[key] && detailCoin?.id) {
+                // Если изображение не изменилось, оставляем существующий путь
+                images[key] = detailCoin[`${key}Path`];
+            }
+        }
+
+        return images;
+    };
+
     const handleSubmit = async (e) => {
+
         e.preventDefault();
         setIsSubmitting(true);
         setSubmitStatus(null);
 
         try {
-            if (!formData.name.trim()) {
-                throw new Error('Название обязательно для заполнения');
-            }
+            ValidationService.validateCoinForm(formData);
 
-            const dataToSend = {
-                ...(detailCoin?.id && { id: detailCoin.id }),
-                itemType: formData.itemType,
-                name: formData.name,
-                nominal: formData.nominal,
-                currency: formData.currency,
-                country: formData.country,
-                year: formData.year === "" ? new Date().getFullYear() : Number(formData.year)
+            const images = await convertImagesToBase64();
+
+            const requestData = {
+                ...formData,
+                ...images,
+                id: detailCoin?.id || undefined
             };
 
+            // ДЕБАГ: посмотрите что отправляется
+            console.log('Отправляемые данные:', JSON.stringify(requestData, null, 2));
+            console.log('Типы данных:', {
+                itemType: typeof requestData.itemType,
+                name: typeof requestData.name,
+                nominal: typeof requestData.nominal,
+                currency: typeof requestData.currency,
+                country: typeof requestData.country
+            });
+
             const response = detailCoin?.id
-                ? await ItemService.updateItem(JSON.stringify(dataToSend))
-                : await ItemService.pushNew(JSON.stringify(dataToSend));
+                ? await ItemService.updateItem(requestData)
+                : await ItemService.pushNew(requestData);
 
             if (!response || response.status >= 400) {
                 throw new Error(`Ошибка сервера: ${response.status}`);
             }
 
-            const result = await response.data;
             setSubmitStatus({
                 success: true,
                 message: detailCoin?.id ? 'Монета успешно обновлена!' : 'Монета успешно создана!',
-                data: result
+                data: await response.data
             });
 
             if (!detailCoin?.id) {
-                setFormData(defaultValues);
+                setFormData(FormInitializer.getDefaultValues());
+                setImagePreviews({ aversImage: null, reversImage: null, edgeImage: null });
+                setImageFiles({ aversImage: null, reversImage: null, edgeImage: null });
             }
         } catch (err) {
-            setSubmitStatus({
-                success: false,
-                message: err.message
-            });
+            setSubmitStatus({ success: false, message: err.message });
         } finally {
             setIsSubmitting(false);
         }
@@ -99,11 +142,6 @@ const CreateCoinForm = ({ detailCoin }) => {
             {submitStatus && (
                 <div className={`alert ${submitStatus.success ? 'success' : 'error'}`}>
                     {submitStatus.message}
-                    {submitStatus.success && (
-                        <div className="response-data">
-                            <pre>{JSON.stringify(submitStatus.data, null, 2)}</pre>
-                        </div>
-                    )}
                 </div>
             )}
 
@@ -119,7 +157,6 @@ const CreateCoinForm = ({ detailCoin }) => {
                         placeholder="Монета"
                     />
                 </div>
-
                 <div className="form-group">
                     <label htmlFor="name">Название*</label>
                     <input
@@ -132,7 +169,6 @@ const CreateCoinForm = ({ detailCoin }) => {
                         required
                     />
                 </div>
-
                 <div className="form-group">
                     <label htmlFor="nominal">Номинал</label>
                     <input
@@ -181,6 +217,30 @@ const CreateCoinForm = ({ detailCoin }) => {
                         min="0"
                         max={new Date().getFullYear()}
                     />
+                </div>
+
+                <div className="form-group">
+                    <label>Изображения монеты</label>
+                    <div className="image-upload-container">
+                        <ImageUpload
+                            preview={imagePreviews.aversImage}
+                            onChange={(e) => handleImageChange(e, 'aversImage')}
+                            onRemove={() => removeImage('aversImage')}
+                            label="Аверс"
+                        />
+                        <ImageUpload
+                            preview={imagePreviews.reversImage}
+                            onChange={(e) => handleImageChange(e, 'reversImage')}
+                            onRemove={() => removeImage('reversImage')}
+                            label="Реверс"
+                        />
+                        <ImageUpload
+                            preview={imagePreviews.edgeImage}
+                            onChange={(e) => handleImageChange(e, 'edgeImage')}
+                            onRemove={() => removeImage('edgeImage')}
+                            label="Гурт"
+                        />
+                    </div>
                 </div>
 
                 <button

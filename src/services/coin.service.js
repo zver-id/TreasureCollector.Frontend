@@ -18,10 +18,11 @@ export const ItemService = {
     },
 
     async pushNew(data){
+        console.log(data)
         const response = await axios.post(
             `${config.apiUrl}/Coin/`, data, {
                 headers:{
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'multipart/form-data'
                 }
             })
             .then(response => {
@@ -49,5 +50,7 @@ export const ItemService = {
         const response = await axios.get(`${config.apiUrl}/CoinStatistics?field=country`);
         console.log('Response:', response.data);
         return response
-    }
+    },
+
+
 }
