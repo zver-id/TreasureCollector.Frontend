@@ -6,7 +6,7 @@ export const ImageService = {
         if (!imagePath) return null;
 
         try {
-            const fullImagePath = `${config.apiUrl}/Image?filePath=${imagePath}`;
+            const fullImagePath = `${config.apiUrl}/Image?fileName=${imagePath}`;
             const response = await axios.get(fullImagePath, {
                 responseType: 'blob'
             });
