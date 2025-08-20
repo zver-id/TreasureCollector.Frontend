@@ -99,16 +99,6 @@ const CreateCoinForm = ({ detailCoin }) => {
                 id: detailCoin?.id || undefined
             };
 
-            // ДЕБАГ: посмотрите что отправляется
-            console.log('Отправляемые данные:', JSON.stringify(requestData, null, 2));
-            console.log('Типы данных:', {
-                itemType: typeof requestData.itemType,
-                name: typeof requestData.name,
-                nominal: typeof requestData.nominal,
-                currency: typeof requestData.currency,
-                country: typeof requestData.country
-            });
-
             const response = detailCoin?.id
                 ? await ItemService.updateItem(requestData)
                 : await ItemService.pushNew(requestData);
