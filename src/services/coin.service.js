@@ -46,10 +46,10 @@ export const ItemService = {
         return response
     },
 
-    async getStats() {
-        const response = await axios.get(`${config.apiUrl}/CoinStatistics?field=country`);
+    async getStats(field = 'country') {
+        const response = await axios.get(`${config.apiUrl}/CoinStatistics?field=${field}`);
         console.log('Response:', response.data);
-        return response
+        return response;
     },
 
 

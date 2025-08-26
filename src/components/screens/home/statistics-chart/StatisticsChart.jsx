@@ -6,17 +6,18 @@ import {
     CategoryScale,
     LinearScale,
     BarElement,
-    Title as ChartTitle,
+    Title,
     Tooltip,
     Legend
 } from 'chart.js';
 import styles from './StatisticsChart.module.css';
+import {Link} from "react-router-dom";
 
 ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
-    ChartTitle,
+    Title,
     Tooltip,
     Legend
 );
@@ -26,6 +27,12 @@ const StatisticsChart = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [refreshKey, setRefreshKey] = useState(0);
+    const [selectedField, setSelectedField] = useState('country');
+
+    const fieldOptions = [
+        { value: 'country', label: 'Страна' },
+        { value: 'year', label: 'Год' }
+    ];
 
     const chartOptions = {
         responsive: true,
@@ -62,7 +69,7 @@ const StatisticsChart = () => {
         setError('');
 
         try {
-            const response = await ItemService.getStats();
+            const response = await ItemService.getStats(selectedField);
 
             const data = await response.data;
 
@@ -101,15 +108,39 @@ const StatisticsChart = () => {
 
     useEffect(() => {
         fetchStatistics();
-    }, [refreshKey]);
+    }, [refreshKey, selectedField]);
 
     const handleRefresh = () => {
         setRefreshKey(prev => prev + 1);
     };
 
+    const handleFieldChange = (event) => {
+        setSelectedField(event.target.value);
+    };
+
     return (
         <div className={styles.container}>
             <h2 className={styles.title}>Визуализация статистики</h2>
+
+            {/* Поле выбора типа статистики */}
+            <div className={styles.selectContainer}>
+                <label htmlFor="field-select" className={styles.selectLabel}>
+                    Выберите тип статистики:
+                </label>
+                <select
+                    id="field-select"
+                    value={selectedField}
+                    onChange={handleFieldChange}
+                    className={styles.select}
+                    disabled={loading}
+                >
+                    {fieldOptions.map(option => (
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
+                    ))}
+                </select>
+            </div>
 
             {loading && <div className={styles.loading}>Загрузка данных...</div>}
 
@@ -132,6 +163,7 @@ const StatisticsChart = () => {
             >
                 Обновить данные
             </button>
+            <Link className={'btn'} to ='/'>Back</Link>
 
             <div className={styles.footer}>
                 Данные загружены: {new Date().toLocaleString()}
