@@ -7,6 +7,7 @@ import config from "../../../../config.js";
 
 function Home() {
     const [coins, setItems] = useState([]);
+    const reportUrl = `${config.apiUrl}/InventoryReport`;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -32,7 +33,7 @@ function Home() {
                     </Link>
                     <a
                         className={styles.button}
-                        href="http://localhost:5186/InventoryReport"
+                        href={reportUrl}
                         download="CoinsInventoryReport.pdf"
                         >
                         Get Report
